@@ -1,0 +1,137 @@
+{
+  "endpoints": [
+    {
+      "endpoint": "GET /users",
+      "targetFile": "ApiForge.Api/Controllers/v1/UsersController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/UsersControllerTests.cs",
+      "estimatedSteps": 8
+    },
+    {
+      "endpoint": "POST /users",
+      "targetFile": "ApiForge.Api/Controllers/v1/UsersController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/UsersControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "GET /users/{userId}",
+      "targetFile": "ApiForge.Api/Controllers/v1/UsersController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/UsersControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "PUT /users/{userId}",
+      "targetFile": "ApiForge.Api/Controllers/v1/UsersController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/UsersControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "DELETE /users/{userId}",
+      "targetFile": "ApiForge.Api/Controllers/v1/UsersController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/UsersControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "GET /groups",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupsControllerTests.cs",
+      "estimatedSteps": 8
+    },
+    {
+      "endpoint": "POST /groups",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupsControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "GET /groups/{groupSlug}",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupsControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "PUT /groups/{groupSlug}",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupsControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "DELETE /groups/{groupSlug}",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupsControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "GET /group-user-assignments",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupUserAssignmentsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupUserAssignmentsControllerTests.cs",
+      "estimatedSteps": 8
+    },
+    {
+      "endpoint": "POST /group-user-assignments",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupUserAssignmentsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupUserAssignmentsControllerTests.cs",
+      "estimatedSteps": 8
+    },
+    {
+      "endpoint": "GET /group-user-assignments/{groupUserAssignId}",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupUserAssignmentsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupUserAssignmentsControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "DELETE /group-user-assignments/{groupUserAssignId}",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupUserAssignmentsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupUserAssignmentsControllerTests.cs",
+      "estimatedSteps": 4
+    }
+  ],
+  "sharedFiles": [
+    "ApiForge.Application/Users/DTOs/CreateUserRequest.cs",
+    "ApiForge.Application/Users/Services/UserService.cs",
+    "ApiForge.Application/Users/Interfaces/IUserService.cs",
+    "ApiForge.Application/Users/Interfaces/IUserRepository.cs",
+    "ApiForge.Application/Users/Validators/CreateUserRequestValidator.cs",
+    "ApiForge.Domain/Users/User.cs",
+    "ApiForge.Tests/Application/Users/UserServiceTests.cs",
+    "ApiForge.Tests/Infrastructure/UsersRepositoryTests.cs",
+    "ApiForge.Application/Groups/DTOs/CreateGroupRequest.cs",
+    "ApiForge.Application/Groups/Services/GroupService.cs",
+    "ApiForge.Application/Groups/Interfaces/IGroupService.cs",
+    "ApiForge.Application/Groups/Interfaces/IGroupRepository.cs",
+    "ApiForge.Application/Groups/Validators/CreateGroupRequestValidator.cs",
+    "ApiForge.Domain/Groups/Group.cs",
+    "ApiForge.Tests/Application/Groups/GroupServiceTests.cs",
+    "ApiForge.Tests/Infrastructure/GroupsRepositoryTests.cs",
+    "ApiForge.Application/GroupUserAssignments/DTOs/CreateGroupUserAssignmentRequest.cs",
+    "ApiForge.Application/GroupUserAssignments/Services/GroupUserAssignmentService.cs",
+    "ApiForge.Application/GroupUserAssignments/Interfaces/IGroupUserAssignmentService.cs",
+    "ApiForge.Application/GroupUserAssignments/Interfaces/IGroupUserAssignmentRepository.cs",
+    "ApiForge.Application/GroupUserAssignments/Validators/CreateGroupUserAssignmentRequestValidator.cs",
+    "ApiForge.Domain/GroupUserAssignments/GroupUserAssignment.cs",
+    "ApiForge.Tests/Application/GroupUserAssignments/GroupUserAssignmentServiceTests.cs",
+    "ApiForge.Tests/Infrastructure/GroupUserAssignmentsRepositoryTests.cs"
+  ],
+  "migrationOrder": [
+    "ApiForge.Domain/Users/User.cs",
+    "ApiForge.Domain/Groups/Group.cs",
+    "ApiForge.Domain/GroupUserAssignments/GroupUserAssignment.cs",
+    "ApiForge.Application/Users/Interfaces/IUserRepository.cs",
+    "ApiForge.Application/Users/Interfaces/IUserService.cs",
+    "ApiForge.Application/Users/DTOs/CreateUserRequest.cs",
+    "ApiForge.Application/Users/Validators/CreateUserRequestValidator.cs",
+    "ApiForge.Application/Users/Services/UserService.cs",
+    "ApiForge.Application/Groups/Interfaces/IGroupRepository.cs",
+    "ApiForge.Application/Groups/Interfaces/IGroupService.cs",
+    "ApiForge.Application/Groups/DTOs/CreateGroupRequest.cs",
+    "ApiForge.Application/Groups/Validators/CreateGroupRequestValidator.cs",
+    "ApiForge.Application/Groups/Services/GroupService.cs",
+    "ApiForge.Application/GroupUserAssignments/Interfaces/IGroupUserAssignmentRepository.cs",
+    "ApiForge.Application/GroupUserAssignments/Interfaces/IGroupUserAssignmentService.cs",
+    "ApiForge.Application/GroupUserAssignments/DTOs/CreateGroupUserAssignmentRequest.cs",
+    "ApiForge.Application/GroupUserAssignments/Validators/CreateGroupUserAssignmentRequestValidator.cs",
+    "ApiForge.Application/GroupUserAssignments/Services/GroupUserAssignmentService.cs",
+    "ApiForge.Api/Controllers/v1/UsersController.cs",
+    "ApiForge.Api/Controllers/v1/GroupsController.cs",
+    "ApiForge.Api/Controllers/v1/GroupUserAssignmentsController.cs"
+  ]
+}
