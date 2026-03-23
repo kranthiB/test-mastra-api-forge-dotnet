@@ -9,4 +9,5 @@ public record UserResponse(
     string UserName,
     string Email,
     string? DisplayName,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    DateTime? UpdatedAt);

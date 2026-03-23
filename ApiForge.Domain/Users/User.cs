@@ -31,4 +31,21 @@ public sealed class User : AuditableEntity
             DisplayName = displayName?.Trim(),
         };
     }
+
+    // ── Mutator ────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Fully replaces all mutable fields of the user (PUT semantics).
+    /// Corresponds to operationId: Users_Replace.
+    /// </summary>
+    public void Replace(string userName, string email, string? displayName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(email);
+
+        UserName = userName.Trim();
+        Email = email.Trim().ToLowerInvariant();
+        DisplayName = displayName?.Trim();
+        Touch();
+    }
 }
