@@ -1,0 +1,25 @@
+{
+  "endpoints": [],
+  "sharedFiles": [
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]",
+    "[object Object]"
+  ],
+  "migrationOrder": [
+    "CreateUsersTable",
+    "CreateGroupsTable",
+    "CreateGroupUserAssignmentsTable"
+  ]
+}
