@@ -1,0 +1,13 @@
+{
+  "endpoints": [],
+  "sharedFiles": [
+    "[object Object]",
+    "[object Object]",
+    "[object Object]"
+  ],
+  "migrationOrder": [
+    "Group",
+    "User",
+    "GroupUserAssignment"
+  ]
+}
