@@ -22,10 +22,10 @@ public sealed class User : AuditableEntity
         };
     }
 
-    public void Update(string userName, string? cname)
+    public void Update(string userName, string email, string? cname)
     {
-        // Email is not updatable in this example
         UserName = userName;
+        Email = email;
         Cname = cname;
         Touch();
     }

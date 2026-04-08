@@ -2,6 +2,7 @@
 using ApiForge.Domain.Users;
 using ApiForge.Infrastructure.Persistence.Repositories;
 using FluentAssertions;
+using Xunit;
 
 namespace ApiForge.Tests.Infrastructure.Repositories;
 

@@ -5,6 +5,10 @@ using ApiForge.Domain.Users;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Xunit;
+using FluentValidation;
+using ApiForge.Application.Users.DTOs;
+using FluentValidation.Results;
 
 namespace ApiForge.Tests.Application.Users;
 
@@ -12,13 +16,20 @@ public class UserServiceTests
 {
     private readonly Mock<IUserRepository> _repoMock;
     private readonly Mock<ILogger<UserService>> _loggerMock;
+    private readonly Mock<IValidator<CreateUserRequest>> _createValidatorMock;
+    private readonly Mock<IValidator<ReplaceUserRequest>> _updateValidatorMock;
     private readonly UserService _sut;
 
     public UserServiceTests()
     {
         _repoMock = new Mock<IUserRepository>();
         _loggerMock = new Mock<ILogger<UserService>>();
-        _sut = new UserService(_repoMock.Object, _loggerMock.Object);
+        _createValidatorMock = new Mock<IValidator<CreateUserRequest>>();
+        _updateValidatorMock = new Mock<IValidator<ReplaceUserRequest>>();
+        _sut = new UserService(_repoMock.Object, _createValidatorMock.Object, _updateValidatorMock.Object, _loggerMock.Object);
+
+        _createValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<CreateUserRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
     }
 
     [Fact]
