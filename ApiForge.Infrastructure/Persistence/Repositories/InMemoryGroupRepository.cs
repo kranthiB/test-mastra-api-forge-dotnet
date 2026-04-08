@@ -27,4 +27,10 @@ public sealed class InMemoryGroupRepository : InMemoryRepository<Group>, IGroupR
             (!excludeId.HasValue || g.Id != excludeId.Value));
         return Task.FromResult(exists);
     }
+
+    public Task<Group?> GetBySlugAsync(string slug, CancellationToken ct = default)
+    {
+        var group = Store.Values.FirstOrDefault(g => string.Equals(g.GroupSlug, slug, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(group);
+    }
 }

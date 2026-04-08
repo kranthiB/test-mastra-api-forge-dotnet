@@ -9,4 +9,5 @@ public interface IGroupRepository : IRepository<Group>
     Task<(IReadOnlyList<Group> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken ct = default);
     Task<bool> ExistsByNameAsync(string name, Guid? excludeId = null, CancellationToken ct = default);
     Task<bool> ExistsBySlugAsync(string slug, Guid? excludeId = null, CancellationToken ct = default);
+    Task<Group?> GetBySlugAsync(string slug, CancellationToken ct = default);
 }

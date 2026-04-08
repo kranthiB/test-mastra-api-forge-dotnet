@@ -95,4 +95,104 @@ public sealed class GroupsControllerTests : IClassFixture<WebApplicationFactory<
         content!.Items.Should().HaveCount(2);
         content.TotalCount.Should().Be(2);
     }
+
+    [Fact]
+    public async Task GetBySlug_Returns200_WhenGroupExists()
+    {
+        // Arrange
+        var groupSlug = "test-group";
+        var responseDto = new GroupResponse(Guid.NewGuid(), groupSlug, "Test Group", "A test group.", DateTimeOffset.UtcNow, null);
+        _svcMock.Setup(x => x.GetBySlugAsync(groupSlug, default))
+            .ReturnsAsync(Result<GroupResponse>.Success(responseDto));
+
+        // Act
+        var response = await _client.GetAsync($"/api/v1/groups/{groupSlug}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<GroupResponse>();
+        content.Should().BeEquivalentTo(responseDto);
+    }
+
+    [Fact]
+    public async Task GetBySlug_Returns404_WhenGroupDoesNotExist()
+    {
+        // Arrange
+        var groupSlug = "non-existent-group";
+        _svcMock.Setup(x => x.GetBySlugAsync(groupSlug, default))
+            .ReturnsAsync(Result<GroupResponse>.NotFound($"Group with slug '{groupSlug}' not found."));
+
+        // Act
+        var response = await _client.GetAsync($"/api/v1/groups/{groupSlug}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Update_Returns200_WhenRequestIsValid()
+    {
+        // Arrange
+        var groupSlug = "test-group";
+        var request = new UpdateGroupRequest("Updated Group", "An updated group.");
+        var responseDto = new GroupResponse(Guid.NewGuid(), "updated-group", request.Name, request.Description, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+        _svcMock.Setup(x => x.UpdateAsync(groupSlug, request, default))
+            .ReturnsAsync(Result<GroupResponse>.Success(responseDto));
+
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/v1/groups/{groupSlug}", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<GroupResponse>();
+        content.Should().BeEquivalentTo(responseDto);
+    }
+
+    [Fact]
+    public async Task Update_Returns400_WhenRequestIsInvalid()
+    {
+        // Arrange
+        var groupSlug = "test-group";
+        var request = new UpdateGroupRequest("", null); // Invalid name
+        _svcMock.Setup(x => x.UpdateAsync(groupSlug, request, default))
+            .ReturnsAsync(Result<GroupResponse>.Validation("Name is required."));
+
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/v1/groups/{groupSlug}", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Update_Returns404_WhenGroupDoesNotExist()
+    {
+        // Arrange
+        var groupSlug = "non-existent-group";
+        var request = new UpdateGroupRequest("Updated Group", "An updated group.");
+        _svcMock.Setup(x => x.UpdateAsync(groupSlug, request, default))
+            .ReturnsAsync(Result<GroupResponse>.NotFound($"Group with slug '{groupSlug}' not found."));
+
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/v1/groups/{groupSlug}", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Update_Returns409_WhenGroupNameIsTaken()
+    {
+        // Arrange
+        var groupSlug = "test-group";
+        var request = new UpdateGroupRequest("Existing Group", null);
+        _svcMock.Setup(x => x.UpdateAsync(groupSlug, request, default))
+            .ReturnsAsync(Result<GroupResponse>.Conflict("A group with that name already exists."));
+
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/v1/groups/{groupSlug}", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
 }

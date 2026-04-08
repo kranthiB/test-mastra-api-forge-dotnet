@@ -73,4 +73,47 @@ public sealed class GroupsController : ControllerBase
         var result = await _groupService.DeleteAsync(id, ct);
         return result.IsSuccess ? NoContent() : Problem(result.Error, statusCode: 404);
     }
+
+    [HttpDelete("{groupSlug}")]
+    [SwaggerOperation(Summary = "Delete a group by its unique slug", OperationId = "Groups_DeleteBySlug")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteBySlug([FromRoute] string groupSlug, CancellationToken ct)
+    {
+        var result = await _groupService.DeleteBySlugAsync(groupSlug, ct);
+        return result.IsSuccess ? NoContent() : Problem(result.Error, statusCode: 404);
+    }
+
+    [HttpGet("{groupSlug}", Name = "GetGroupBySlug")]
+    [SwaggerOperation(Summary = "Get a group by its unique slug", OperationId = "Groups_GetBySlug")]
+    [ProducesResponseType(typeof(GroupResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetBySlug([FromRoute] string groupSlug, CancellationToken ct)
+    {
+        var result = await _groupService.GetBySlugAsync(groupSlug, ct);
+        return result.IsSuccess ? Ok(result.Value) : Problem(result.Error, statusCode: 404);
+    }
+
+    [HttpPut("{groupSlug}")]
+    [SwaggerOperation(Summary = "Update a group by its unique slug", OperationId = "Groups_Update")]
+    [ProducesResponseType(typeof(GroupResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Update([FromRoute] string groupSlug, [FromBody] UpdateGroupRequest request, CancellationToken ct)
+    {
+        var result = await _groupService.UpdateAsync(groupSlug, request, ct);
+
+        if (result.IsSuccess)
+            return Ok(result.Value);
+
+        return result.ErrorKind switch
+        {
+            ErrorType.Validation => BadRequest(new { errors = result.Error }),
+            ErrorType.NotFound => Problem(result.Error, statusCode: StatusCodes.Status404NotFound),
+            ErrorType.Conflict => Problem(result.Error, statusCode: StatusCodes.Status409Conflict),
+            _ => Problem(result.Error, statusCode: StatusCodes.Status500InternalServerError),
+        };
+    }
 }
