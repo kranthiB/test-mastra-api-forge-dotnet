@@ -19,4 +19,12 @@ public sealed class InMemoryGroupRepository : InMemoryRepository<Group>, IGroupR
             (!excludeId.HasValue || g.Id != excludeId.Value));
         return Task.FromResult(exists);
     }
+
+    public Task<bool> ExistsBySlugAsync(string slug, Guid? excludeId = null, CancellationToken ct = default)
+    {
+        var exists = Store.Values.Any(g =>
+            string.Equals(g.GroupSlug, slug, StringComparison.OrdinalIgnoreCase) &&
+            (!excludeId.HasValue || g.Id != excludeId.Value));
+        return Task.FromResult(exists);
+    }
 }

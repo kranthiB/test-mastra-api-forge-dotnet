@@ -2,8 +2,9 @@ namespace ApiForge.Application.Groups.DTOs;
 
 public record GroupResponse(
     Guid Id,
+    string GroupSlug,
     string Name,
     string? Description,
-    DateTime CreatedAt,
-    DateTime? UpdatedAt
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? UpdatedAt
 );

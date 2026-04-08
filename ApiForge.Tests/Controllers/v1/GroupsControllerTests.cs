@@ -23,13 +23,62 @@ public sealed class GroupsControllerTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
+    public async Task Create_Returns201_WhenRequestIsValid()
+    {
+        // Arrange
+        var request = new CreateGroupRequest("New Group", "A cool new group.");
+        var responseDto = new GroupResponse(Guid.NewGuid(), "new-group", request.Name, request.Description, DateTimeOffset.UtcNow, null);
+        _svcMock.Setup(x => x.CreateAsync(request, default))
+            .ReturnsAsync(Result<GroupResponse>.Success(responseDto));
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/v1/groups", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var content = await response.Content.ReadFromJsonAsync<GroupResponse>();
+        content.Should().BeEquivalentTo(responseDto);
+        response.Headers.Location.Should().Be($"/api/v1/groups/{content!.Id}");
+    }
+
+    [Fact]
+    public async Task Create_Returns400_WhenRequestIsInvalid()
+    {
+        // Arrange
+        var request = new CreateGroupRequest("", null); // Invalid name
+        _svcMock.Setup(x => x.CreateAsync(request, default))
+            .ReturnsAsync(Result<GroupResponse>.Validation("Name is required."));
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/v1/groups", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Create_Returns409_WhenGroupAlreadyExists()
+    {
+        // Arrange
+        var request = new CreateGroupRequest("Existing Group", null);
+        _svcMock.Setup(x => x.CreateAsync(request, default))
+            .ReturnsAsync(Result<GroupResponse>.Conflict("Group with that name already exists."));
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/v1/groups", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
+
+    [Fact]
     public async Task GetAll_Returns200_WithPagedGroups()
     {
         // Arrange
         var groups = new List<GroupResponse>
         {
-            new(Guid.NewGuid(), "Admins", DateTime.UtcNow, null),
-            new(Guid.NewGuid(), "Users", DateTime.UtcNow, null)
+            new(Guid.NewGuid(), "admins", "Admins", null, DateTimeOffset.UtcNow, null),
+            new(Guid.NewGuid(), "users", "Users", null, DateTimeOffset.UtcNow, null)
         };
         var pagedResult = new PagedResult<GroupResponse>(groups, groups.Count, 1, 10);
         var successResult = Result<PagedResult<GroupResponse>>.Success(pagedResult);
