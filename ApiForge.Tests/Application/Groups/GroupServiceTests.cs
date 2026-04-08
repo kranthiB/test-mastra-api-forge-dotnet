@@ -1,3 +1,5 @@
+
+using ApiForge.Application.Common.Models;
 using ApiForge.Application.Groups.DTOs;
 using ApiForge.Application.Groups.Interfaces;
 using ApiForge.Application.Groups.Services;
@@ -14,16 +16,18 @@ namespace ApiForge.Tests.Application.Groups;
 public class GroupServiceTests
 {
     private readonly Mock<IGroupRepository> _repoMock;
-    private readonly IValidator<CreateGroupRequest> _validator;
+    private readonly IValidator<CreateGroupRequest> _createValidator;
+    private readonly IValidator<UpdateGroupRequest> _updateValidator;
     private readonly Mock<ILogger<GroupService>> _loggerMock;
     private readonly GroupService _sut;
 
     public GroupServiceTests()
     {
         _repoMock = new Mock<IGroupRepository>();
-        _validator = new CreateGroupRequestValidator(); // Using real validator for this test
+        _createValidator = new CreateGroupRequestValidator(); // Using real validator for this test
+        _updateValidator = new UpdateGroupRequestValidator(); // Using real validator for this test
         _loggerMock = new Mock<ILogger<GroupService>>();
-        _sut = new GroupService(_repoMock.Object, _validator, _loggerMock.Object);
+        _sut = new GroupService(_repoMock.Object, _createValidator, _updateValidator, _loggerMock.Object);
     }
 
     [Fact]
@@ -56,7 +60,7 @@ public class GroupServiceTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ErrorKind.Should().Be(Common.Models.ErrorType.Validation);
+        result.ErrorKind.Should().Be(ErrorType.Validation);
     }
 
     [Fact]
@@ -71,7 +75,7 @@ public class GroupServiceTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ErrorKind.Should().Be(Common.Models.ErrorType.Conflict);
+        result.ErrorKind.Should().Be(ErrorType.Conflict);
     }
 
     [Fact]
@@ -87,6 +91,6 @@ public class GroupServiceTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.ErrorKind.Should().Be(Common.Models.ErrorType.Conflict);
+        result.ErrorKind.Should().Be(ErrorType.Conflict);
     }
 }
