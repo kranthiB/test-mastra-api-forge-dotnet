@@ -1,0 +1,90 @@
+{
+  "endpoints": [
+    {
+      "endpoint": "GET /users",
+      "targetFile": "ApiForge.Api/Controllers/v1/UsersController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/UsersControllerTests.cs",
+      "estimatedSteps": 8
+    },
+    {
+      "endpoint": "POST /users",
+      "targetFile": "ApiForge.Api/Controllers/v1/UsersController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/UsersControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "GET /users/{userId}",
+      "targetFile": "ApiForge.Api/Controllers/v1/UsersController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/UsersControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "PUT /users/{userId}",
+      "targetFile": "ApiForge.Api/Controllers/v1/UsersController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/UsersControllerTests.cs",
+      "estimatedSteps": 8
+    },
+    {
+      "endpoint": "DELETE /users/{userId}",
+      "targetFile": "ApiForge.Api/Controllers/v1/UsersController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/UsersControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "GET /groups",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupsControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "POST /groups",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupsControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "GET /groups/{groupSlug}",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupsControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "PUT /groups/{groupSlug}",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupsControllerTests.cs",
+      "estimatedSteps": 8
+    },
+    {
+      "endpoint": "DELETE /groups/{groupSlug}",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupsControllerTests.cs",
+      "estimatedSteps": 8
+    },
+    {
+      "endpoint": "GET /group-user-assignments",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupUserAssignmentsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupUserAssignmentsControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "POST /group-user-assignments",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupUserAssignmentsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupUserAssignmentsControllerTests.cs",
+      "estimatedSteps": 8
+    },
+    {
+      "endpoint": "GET /group-user-assignments/{groupUserAssignId}",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupUserAssignmentsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupUserAssignmentsControllerTests.cs",
+      "estimatedSteps": 4
+    },
+    {
+      "endpoint": "DELETE /group-user-assignments/{groupUserAssignId}",
+      "targetFile": "ApiForge.Api/Controllers/v1/GroupUserAssignmentsController.cs",
+      "testFile": "ApiForge.Tests/Controllers/v1/GroupUserAssignmentsControllerTests.cs",
+      "estimatedSteps": 4
+    }
+  ],
+  "sharedFiles": [],
+  "migrationOrder": []
+}
