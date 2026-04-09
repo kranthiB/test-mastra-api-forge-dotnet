@@ -1,6 +1,12 @@
+
 using ApiForge.Application.Products.Interfaces;
 using ApiForge.Application.Products.Services;
-using ApiForge.Application.Products.Validators;
+using ApiForge.Application.Users.Interfaces;
+using ApiForge.Application.Users.Services;
+using ApiForge.Application.Groups.Interfaces;
+using ApiForge.Application.Groups.Services;
+using ApiForge.Application.GroupUserAssignments.Interfaces;
+using ApiForge.Application.GroupUserAssignments.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,10 +21,13 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         // Validators – scanned from this assembly
-        services.AddValidatorsFromAssemblyContaining<CreateProductRequestValidator>();
+        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
         // Services
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IGroupService, GroupService>();
+        services.AddScoped<IGroupUserAssignmentService, GroupUserAssignmentService>();
 
         return services;
     }

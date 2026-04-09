@@ -1,4 +1,8 @@
+
 using ApiForge.Application.Products.Interfaces;
+using ApiForge.Application.Users.Interfaces;
+using ApiForge.Application.Groups.Interfaces;
+using ApiForge.Application.GroupUserAssignments.Interfaces;
 using ApiForge.Infrastructure.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +24,9 @@ public static class DependencyInjection
         // Replace with AddScoped<IProductRepository, EfProductRepository>()
         // when wiring up a real database.
         services.AddSingleton<IProductRepository, InMemoryProductRepository>();
+        services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+        services.AddSingleton<IGroupRepository, InMemoryGroupRepository>();
+        services.AddSingleton<IGroupUserAssignmentRepository, InMemoryGroupUserAssignmentRepository>();
 
         // ── TODO: Add database context, caching, message bus clients, etc. ─
         // services.AddDbContext<AppDbContext>(o => o.UseSqlServer(configuration.GetConnectionString("Default")));
