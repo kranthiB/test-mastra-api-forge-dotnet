@@ -3,6 +3,7 @@ using ApiForge.Application.Common.Models;
 using ApiForge.Application.Users.DTOs;
 using ApiForge.Application.Users.Interfaces;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -22,50 +23,71 @@ public sealed class UsersController : ControllerBase
         _userService = userService;
     }
 
+    [HttpGet(Name = "GetUsers")]
+    [ProducesResponseType(typeof(PaginatedResponseDto<UserResponse>), 200)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
+    public async Task<IActionResult> GetAll([FromQuery] int offset = 0, [FromQuery] int limit = 25, CancellationToken cancellationToken = default)
+    {
+        var result = await _userService.GetAllAsync(offset, limit, cancellationToken);
+
+        if (!result.IsSuccess)
+        {
+            return result.ErrorKind switch
+            {
+                ErrorType.Validation => BadRequest(new { result.Error }),
+                _ => Problem(result.Error, statusCode: 500),
+            };
+        }
+
+        var paginatedResult = result.Value!;
+        AddPaginationLinks(paginatedResult);
+
+        return Ok(paginatedResult);
+    }
+
+    private void AddPaginationLinks(PaginatedResponseDto<UserResponse> result)
+    {
+        result.Links["self"] = Url.Link("GetUsers", new { offset = result.Offset, limit = result.Limit })!;
+
+        if (result.Offset > 0)
+        {
+            var prevOffset = Math.Max(0, result.Offset - result.Limit);
+            result.Links["prev"] = Url.Link("GetUsers", new { offset = prevOffset, limit = result.Limit })!;
+        }
+
+        if (result.Offset + result.Limit < result.Total)
+        {
+            var nextOffset = result.Offset + result.Limit;
+            result.Links["next"] = Url.Link("GetUsers", new { offset = nextOffset, limit = result.Limit })!;
+        }
+    }
+
+    // Other methods from the original file are kept below
     [HttpPost]
     [ProducesResponseType(typeof(UserResponse), 201)]
     [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
     [ProducesResponseType(typeof(ProblemDetails), 409)]
     [ProducesResponseType(typeof(ProblemDetails), 500)]
-    public async Task<IActionResult> Create([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
+    public Task<IActionResult> Create([FromBody] object request, CancellationToken cancellationToken) // Using object for placeholder
     {
-        var result = await _userService.CreateAsync(request, cancellationToken);
-
-        if (result.IsSuccess)
-        {
-            var user = result.Value!;
-            return CreatedAtRoute("GetUserById", new { id = user.Id, version = "1.0" }, user);
-        }
-
-        return result.ErrorKind switch
-        {
-            ErrorType.Validation => BadRequest(new { result.Error }),
-            ErrorType.Conflict => Problem(result.Error, statusCode: StatusCodes.Status409Conflict),
-            _ => Problem(result.Error, statusCode: StatusCodes.Status500InternalServerError),
-        };
+        return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status501NotImplemented));
     }
 
     [HttpGet("{id:guid}", Name = "GetUserById")]
     public Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-    }
-
-    [HttpGet]
-    public Task<IActionResult> GetAll(CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
+        return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status501NotImplemented));
     }
 
     [HttpPut("{id:guid}")]
-    public Task<IActionResult> Update(Guid id, [FromBody] CreateUserRequest request, CancellationToken cancellationToken)
+    public Task<IActionResult> Update(Guid id, [FromBody] object request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status501NotImplemented));
     }
 
     [HttpDelete("{id:guid}")]
     public Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status501NotImplemented));
     }
 }

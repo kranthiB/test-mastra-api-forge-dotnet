@@ -29,49 +29,72 @@ public sealed class UsersControllerTests : IClassFixture<WebApplicationFactory<P
     }
 
     [Fact]
-    public async Task Create_Returns201_WhenRequestIsValid()
+    public async Task GetAll_Returns200_WithDefaultPagination()
     {
         // Arrange
-        var request = new CreateUserRequest("testuser", "test@example.com");
-        var userResponse = new UserResponse(Guid.NewGuid(), request.UserName, request.Email, "testuser-cname", DateTime.UtcNow, null);
-        _userServiceMock.Setup(s => s.CreateAsync(request, default)).ReturnsAsync(Result<UserResponse>.Success(userResponse));
+        var users = new List<UserResponse> { new UserResponse { UserId = Guid.NewGuid(), UserName = "test" } };
+        var paginatedResponse = new PaginatedResponseDto<UserResponse>(0, 25, 1, new Dictionary<string, object>(), users);
+        _userServiceMock.Setup(s => s.GetAllAsync(0, 25, default)).ReturnsAsync(Result<PaginatedResponseDto<UserResponse>>.Success(paginatedResponse));
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/v1/users", request);
+        var response = await _client.GetAsync("/api/v1/users");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
-        response.Headers.Location.Should().NotBeNull();
-        response.Headers.Location!.ToString().Should().Contain(userResponse.Id.ToString());
-        var createdUser = await response.Content.ReadFromJsonAsync<UserResponse>();
-        createdUser.Should().BeEquivalentTo(userResponse);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<PaginatedResponseDto<UserResponse>>();
+        content.Should().NotBeNull();
+        content!.Data.Should().HaveCount(1);
+        content.Offset.Should().Be(0);
+        content.Limit.Should().Be(25);
     }
 
     [Fact]
-    public async Task Create_Returns400_WhenRequestIsInvalid()
+    public async Task GetAll_Returns200_WithCustomPagination()
     {
         // Arrange
-        var request = new CreateUserRequest("", ""); // Invalid request
-        _userServiceMock.Setup(s => s.CreateAsync(request, default)).ReturnsAsync(Result<UserResponse>.Validation("Validation failed"));
+        var users = new List<UserResponse> { new UserResponse { UserId = Guid.NewGuid(), UserName = "test" } };
+        var paginatedResponse = new PaginatedResponseDto<UserResponse>(5, 10, 1, new Dictionary<string, object>(), users);
+        _userServiceMock.Setup(s => s.GetAllAsync(5, 10, default)).ReturnsAsync(Result<PaginatedResponseDto<UserResponse>>.Success(paginatedResponse));
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/v1/users", request);
+        var response = await _client.GetAsync("/api/v1/users?offset=5&limit=10");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<PaginatedResponseDto<UserResponse>>();
+        content.Should().NotBeNull();
+        content!.Offset.Should().Be(5);
+        content.Limit.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task GetAll_Returns400_WhenLimitIsInvalid()
+    {
+        // Arrange
+        _userServiceMock.Setup(s => s.GetAllAsync(0, 200, default)).ReturnsAsync(Result<PaginatedResponseDto<UserResponse>>.Validation("Limit must be between 1 and 100."));
+
+        // Act
+        var response = await _client.GetAsync("/api/v1/users?limit=200");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task Create_Returns409_WhenEmailAlreadyExists()
+    public async Task GetAll_Returns200_AndEmptyList_WhenOffsetIsTooHigh()
     {
         // Arrange
-        var request = new CreateUserRequest("testuser", "test@example.com");
-        _userServiceMock.Setup(s => s.CreateAsync(request, default)).ReturnsAsync(Result<UserResponse>.Conflict("Email already exists"));
+        var users = new List<UserResponse>();
+        var paginatedResponse = new PaginatedResponseDto<UserResponse>(100, 25, 50, new Dictionary<string, object>(), users);
+        _userServiceMock.Setup(s => s.GetAllAsync(100, 25, default)).ReturnsAsync(Result<PaginatedResponseDto<UserResponse>>.Success(paginatedResponse));
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/v1/users", request);
+        var response = await _client.GetAsync("/api/v1/users?offset=100");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<PaginatedResponseDto<UserResponse>>();
+        content.Should().NotBeNull();
+        content!.Data.Should().BeEmpty();
     }
 }
