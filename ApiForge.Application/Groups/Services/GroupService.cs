@@ -1,4 +1,5 @@
 
+using ApiForge.Application.GroupUserAssignments.Interfaces;
 using ApiForge.Application.Common.Models;
 using ApiForge.Application.Groups.DTOs;
 using ApiForge.Application.Groups.Interfaces;
@@ -11,17 +12,20 @@ namespace ApiForge.Application.Groups.Services;
 public class GroupService : IGroupService
 {
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupUserAssignmentRepository _groupUserAssignmentRepository;
     private readonly IValidator<CreateGroupRequest> _createValidator;
     private readonly IValidator<UpdateGroupRequest> _updateValidator;
     private readonly ILogger<GroupService> _logger;
 
     public GroupService(
-        IGroupRepository groupRepository, 
-        IValidator<CreateGroupRequest> createValidator, 
-        IValidator<UpdateGroupRequest> updateValidator, 
+        IGroupRepository groupRepository,
+        IGroupUserAssignmentRepository groupUserAssignmentRepository,
+        IValidator<CreateGroupRequest> createValidator,
+        IValidator<UpdateGroupRequest> updateValidator,
         ILogger<GroupService> logger)
     {
         _groupRepository = groupRepository;
+        _groupUserAssignmentRepository = groupUserAssignmentRepository;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
         _logger = logger;
@@ -112,6 +116,26 @@ public class GroupService : IGroupService
         var response = new GroupResponse(group.Id, group.GroupName, group.GroupSlug, group.GroupDesc, group.Cname, group.CreatedAt, group.UpdatedAt);
 
         return Result<GroupResponse>.Success(response);
+    }
+
+    public async Task<Result<object>> DeleteBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    {
+        var group = await _groupRepository.GetBySlugAsync(slug, cancellationToken);
+        if (group == null)
+        { return Result<object>.NotFound($"A group with slug '{slug}' was not found.");
+        }
+
+        var isGroupEmpty = await _groupUserAssignmentRepository.IsGroupEmptyAsync(group.Id, cancellationToken);
+        if (!isGroupEmpty)
+        {
+            return Result<object>.Conflict("Cannot delete group with assigned users.");
+        }
+
+        await _groupRepository.DeleteAsync(group.Id, cancellationToken);
+
+        _logger.LogInformation("Group {GroupId} deleted successfully.", group.Id);
+
+        return Result<object>.Success(new object());
     }
 }
 

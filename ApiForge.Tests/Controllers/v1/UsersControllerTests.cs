@@ -198,4 +198,50 @@ public sealed class UsersControllerTests : IClassFixture<WebApplicationFactory<P
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    [Fact]
+    public async Task Delete_Returns204_WhenUserExistsAndHasNoAssignments()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        _userServiceMock.Setup(s => s.DeleteAsync(userId, default))
+            .ReturnsAsync(Result<object>.Success(new object()));
+
+        // Act
+        var response = await _client.DeleteAsync($"/api/v1/users/{userId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
+    public async Task Delete_Returns404_WhenUserDoesNotExist()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        _userServiceMock.Setup(s => s.DeleteAsync(userId, default))
+            .ReturnsAsync(Result<object>.NotFound("User not found"));
+
+        // Act
+        var response = await _client.DeleteAsync($"/api/v1/users/{userId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Delete_Returns409_WhenUserHasAssignments()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        _userServiceMock.Setup(s => s.DeleteAsync(userId, default))
+            .ReturnsAsync(Result<object>.Conflict("User has assignments"));
+
+        // Act
+        var response = await _client.DeleteAsync($"/api/v1/users/{userId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
+}
 }

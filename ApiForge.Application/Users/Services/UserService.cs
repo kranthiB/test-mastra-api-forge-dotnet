@@ -2,6 +2,7 @@
 using ApiForge.Application.Common.Models;
 using ApiForge.Application.Users.DTOs;
 using ApiForge.Application.Users.Interfaces;
+using ApiForge.Application.GroupUserAssignments.Interfaces;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
@@ -10,15 +11,18 @@ namespace ApiForge.Application.Users.Services;
 public sealed class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IGroupUserAssignmentRepository _groupUserAssignmentRepository;
     private readonly IValidator<UpdateUserRequest> _updateValidator;
     private readonly ILogger<UserService> _logger;
 
     public UserService(
         IUserRepository userRepository,
+        IGroupUserAssignmentRepository groupUserAssignmentRepository,
         IValidator<UpdateUserRequest> updateValidator,
         ILogger<UserService> logger)
     {
         _userRepository = userRepository;
+        _groupUserAssignmentRepository = groupUserAssignmentRepository;
         _updateValidator = updateValidator;
         _logger = logger;
     }
@@ -112,5 +116,25 @@ public sealed class UserService : IUserService
         );
 
         return Result<PaginatedResponseDto<UserResponse>>.Success(responseDto);
+    }
+
+    public async Task<Result<object>> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.GetByIdAsync(id, cancellationToken);
+        if (user is null)
+        {
+            return Result<object>.NotFound($"User with ID {id} not found.");
+        }
+
+        var assignments = await _groupUserAssignmentRepository.GetPaginatedAsync(0, 1, null, id, cancellationToken);
+        if (assignments.TotalCount > 0)
+        {
+            return Result<object>.Conflict($"User with ID {id} has active group assignments and cannot be deleted.");
+        }
+
+        await _userRepository.DeleteAsync(id, cancellationToken);
+
+        _logger.LogInformation("Deleted user with id {UserId}", id);
+        return Result<object>.Success(new object());
     }
 }

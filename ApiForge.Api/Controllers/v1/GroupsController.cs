@@ -126,4 +126,26 @@ public sealed class GroupsController : ControllerBase
             _ => Problem(result.Error, statusCode: 500),
         };
     }
+
+    [HttpDelete("{groupSlug}")]
+    [SwaggerOperation(Summary = "Delete a group by its slug", OperationId = "Groups_DeleteBySlug")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> DeleteGroupAsync([FromRoute] string groupSlug, CancellationToken cancellationToken)
+    {
+        var result = await _groupService.DeleteBySlugAsync(groupSlug, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return NoContent();
+        }
+
+        return result.ErrorKind switch
+        {
+            ErrorType.NotFound => Problem(result.Error, statusCode: StatusCodes.Status404NotFound),
+            ErrorType.Conflict => Problem(result.Error, statusCode: StatusCodes.Status409Conflict),
+            _ => Problem(result.Error, statusCode: 500),
+        };
+    }
 }

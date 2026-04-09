@@ -116,8 +116,21 @@ public sealed class UsersController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    [ProducesResponseType(204)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status501NotImplemented));
+        var result = await _userService.DeleteAsync(id, cancellationToken);
+        if (!result.IsSuccess)
+        {
+            return result.ErrorKind switch
+            {
+                ErrorType.NotFound => Problem(result.Error, statusCode: StatusCodes.Status404NotFound),
+                ErrorType.Conflict => Problem(result.Error, statusCode: StatusCodes.Status409Conflict),
+                _ => Problem(result.Error, statusCode: StatusCodes.Status500InternalServerError)
+            };
+        }
+        return NoContent();
     }
 }

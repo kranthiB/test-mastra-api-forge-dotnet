@@ -1,9 +1,9 @@
-
 namespace ApiForge.Application.GroupUserAssignments.DTOs;
 
-public sealed record GroupUserAssignmentResponse(
-    Guid Id,
+public record GroupUserAssignmentResponse(
+    Guid GroupUserAssignId,
     string GroupSlug,
     Guid UserId,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    DateTime? UpdatedAt
 );

@@ -1,3 +1,5 @@
+using ApiForge.Application.GroupUserAssignments.Interfaces;
+using ApiForge.Application.GroupUserAssignments.Services;
 using ApiForge.Application.Products.Interfaces;
 using ApiForge.Application.Products.Services;
 using ApiForge.Application.Users.Interfaces;
@@ -25,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IGroupService, GroupService>();
+        services.AddScoped<IGroupUserAssignmentService, GroupUserAssignmentService>();
 
         return services;
     }

@@ -230,4 +230,49 @@ public sealed class GroupsControllerTests : IClassFixture<WebApplicationFactory<
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    [Fact]
+    public async Task DeleteGroup_Returns204NoContent_WhenGroupExistsAndHasNoUsers()
+    {
+        // Arrange
+        var groupSlug = "test-group";
+        _groupServiceMock.Setup(s => s.DeleteBySlugAsync(groupSlug, default))
+            .ReturnsAsync(Result<object>.Success(new object()));
+
+        // Act
+        var response = await _client.DeleteAsync($"/api/v1/groups/{groupSlug}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
+    public async Task DeleteGroup_Returns404NotFound_WhenGroupDoesNotExist()
+    {
+        // Arrange
+        var groupSlug = "non-existent-group";
+        _groupServiceMock.Setup(s => s.DeleteBySlugAsync(groupSlug, default))
+            .ReturnsAsync(Result<object>.NotFound("Group not found."));
+
+        // Act
+        var response = await _client.DeleteAsync($"/api/v1/groups/{groupSlug}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task DeleteGroup_Returns409Conflict_WhenGroupHasAssignedUsers()
+    {
+        // Arrange
+        var groupSlug = "group-with-users";
+        _groupServiceMock.Setup(s => s.DeleteBySlugAsync(groupSlug, default))
+            .ReturnsAsync(Result<object>.Conflict("Cannot delete group with assigned users."));
+
+        // Act
+        var response = await _client.DeleteAsync($"/api/v1/groups/{groupSlug}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
 }
