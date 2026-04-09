@@ -74,15 +74,45 @@ public sealed class UsersController : ControllerBase
     }
 
     [HttpGet("{id:guid}", Name = "GetUserById")]
-    public Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(UserResponse), 200)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status501NotImplemented));
+        var result = await _userService.GetByIdAsync(id, cancellationToken);
+        if (!result.IsSuccess)
+        {
+            return result.ErrorKind switch
+            {
+                ErrorType.NotFound => Problem(result.Error, statusCode: StatusCodes.Status404NotFound),
+                _ => Problem(result.Error, statusCode: StatusCodes.Status500InternalServerError)
+            };
+        }
+        return Ok(result.Value);
     }
 
     [HttpPut("{id:guid}")]
-    public Task<IActionResult> Update(Guid id, [FromBody] object request, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(UserResponse), 200)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
+    [ProducesResponseType(typeof(ProblemDetails), 409)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
     {
-        return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status501NotImplemented));
+        var result = await _userService.UpdateAsync(id, request, cancellationToken);
+
+        if (!result.IsSuccess)
+        {
+            return result.ErrorKind switch
+            {
+                ErrorType.Validation => BadRequest(new { result.Error }),
+                ErrorType.NotFound => Problem(result.Error, statusCode: StatusCodes.Status404NotFound),
+                ErrorType.Conflict => Problem(result.Error, statusCode: StatusCodes.Status409Conflict),
+                _ => Problem(result.Error, statusCode: StatusCodes.Status500InternalServerError),
+            };
+        }
+
+        return Ok(result.Value);
     }
 
     [HttpDelete("{id:guid}")]

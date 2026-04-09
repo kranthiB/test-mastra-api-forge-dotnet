@@ -53,4 +53,77 @@ public sealed class GroupsController : ControllerBase
             _ => Problem(result.Error, statusCode: 500),
         };
     }
+
+    /// <summary>
+    /// Returns a paginated list of groups.
+    /// </summary>
+    /// <param name="offset">The number of items to skip.</param>
+    /// <param name="limit">The maximum number of items to return.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A paginated list of groups.</returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<GroupResponse>), 200)]
+    [ProducesResponseType(typeof(ProblemDetails), 400)]
+    public async Task<IActionResult> GetGroupsAsync([FromQuery] int offset = 0, [FromQuery] int limit = 25, CancellationToken cancellationToken = default)
+    {
+        if (limit < 1 || limit > 100)
+        {
+            return BadRequest("Limit must be between 1 and 100.");
+        }
+
+        var result = await _groupService.GetPaginatedAsync(offset, limit, cancellationToken);
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("{groupSlug}", Name = "GetGroupBySlug")]
+    [SwaggerOperation(Summary = "Get a group by its slug", OperationId = "Groups_GetBySlug")]
+    [ProducesResponseType(typeof(GroupResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetGroupAsync([FromRoute] string groupSlug, CancellationToken cancellationToken)
+    {
+        var result = await _groupService.GetBySlugAsync(groupSlug, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
+        }
+
+        return result.ErrorKind switch
+        {
+            ErrorType.NotFound => Problem(result.Error, statusCode: StatusCodes.Status404NotFound),
+            _ => Problem(result.Error, statusCode: 500),
+        };
+    }
+
+    /// <summary>
+    /// Replaces an existing group.
+    /// </summary>
+    /// <param name="groupSlug">The slug of the group to replace.</param>
+    /// <param name="request">The request body for replacing a group.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The updated group.</returns>
+    [HttpPut("{groupSlug}")]
+    [ProducesResponseType(typeof(GroupResponse), 200)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
+    [ProducesResponseType(typeof(ProblemDetails), 409)]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
+    public async Task<IActionResult> ReplaceGroupAsync([FromRoute] string groupSlug, [FromBody] UpdateGroupRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _groupService.UpdateAsync(groupSlug, request, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
+        }
+
+        return result.ErrorKind switch
+        {
+            ErrorType.Validation => BadRequest(new { result.Error }),
+            ErrorType.NotFound => Problem(result.Error, statusCode: 404),
+            ErrorType.Conflict => Problem(result.Error, statusCode: 409),
+            _ => Problem(result.Error, statusCode: 500),
+        };
+    }
 }

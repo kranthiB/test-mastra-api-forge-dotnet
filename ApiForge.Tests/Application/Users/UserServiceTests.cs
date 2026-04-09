@@ -1,8 +1,10 @@
 
+using ApiForge.Application.Users.DTOs;
 using ApiForge.Application.Users.Interfaces;
 using ApiForge.Application.Users.Services;
 using ApiForge.Domain.Users;
 using FluentAssertions;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -12,14 +14,16 @@ namespace ApiForge.Tests.Application.Users;
 public class UserServiceTests
 {
     private readonly Mock<IUserRepository> _userRepositoryMock;
+    private readonly Mock<IValidator<UpdateUserRequest>> _updateValidatorMock;
     private readonly Mock<ILogger<UserService>> _loggerMock;
     private readonly UserService _sut;
 
     public UserServiceTests()
     {
         _userRepositoryMock = new Mock<IUserRepository>();
+        _updateValidatorMock = new Mock<IValidator<UpdateUserRequest>>();
         _loggerMock = new Mock<ILogger<UserService>>();
-        _sut = new UserService(_userRepositoryMock.Object, _loggerMock.Object);
+        _sut = new UserService(_userRepositoryMock.Object, _updateValidatorMock.Object, _loggerMock.Object);
     }
 
     [Fact]

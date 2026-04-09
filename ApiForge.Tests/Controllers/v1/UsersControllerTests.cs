@@ -29,6 +29,40 @@ public sealed class UsersControllerTests : IClassFixture<WebApplicationFactory<P
     }
 
     [Fact]
+    public async Task GetById_Returns200_WhenUserExists()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var userResponse = new UserResponse { UserId = userId, UserName = "testuser", Email = "test@test.com", Cname = "test cname" };
+        _userServiceMock.Setup(s => s.GetByIdAsync(userId, default))
+            .ReturnsAsync(Result<UserResponse>.Success(userResponse));
+
+        // Act
+        var response = await _client.GetAsync($"/api/v1/users/{userId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<UserResponse>();
+        content.Should().NotBeNull();
+        content.Should().BeEquivalentTo(userResponse);
+    }
+
+    [Fact]
+    public async Task GetById_Returns404_WhenUserDoesNotExist()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        _userServiceMock.Setup(s => s.GetByIdAsync(userId, default))
+            .ReturnsAsync(Result<UserResponse>.NotFound("User not found"));
+
+        // Act
+        var response = await _client.GetAsync($"/api/v1/users/{userId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task GetAll_Returns200_WithDefaultPagination()
     {
         // Arrange
@@ -96,5 +130,72 @@ public sealed class UsersControllerTests : IClassFixture<WebApplicationFactory<P
         var content = await response.Content.ReadFromJsonAsync<PaginatedResponseDto<UserResponse>>();
         content.Should().NotBeNull();
         content!.Data.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Update_Returns200_WhenRequestIsValid()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var request = new UpdateUserRequest("updateduser", "updated@test.com");
+        var userResponse = new UserResponse { UserId = userId, UserName = request.UserName, Email = request.Email };
+        _userServiceMock.Setup(s => s.UpdateAsync(userId, request, default))
+            .ReturnsAsync(Result<UserResponse>.Success(userResponse));
+
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/v1/users/{userId}", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<UserResponse>();
+        content.Should().BeEquivalentTo(userResponse);
+    }
+
+    [Fact]
+    public async Task Update_Returns404_WhenUserNotFound()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var request = new UpdateUserRequest("updateduser", "updated@test.com");
+        _userServiceMock.Setup(s => s.UpdateAsync(userId, request, default))
+            .ReturnsAsync(Result<UserResponse>.NotFound("User not found"));
+
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/v1/users/{userId}", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Update_Returns409_WhenEmailIsInUse()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var request = new UpdateUserRequest("updateduser", "existing@test.com");
+        _userServiceMock.Setup(s => s.UpdateAsync(userId, request, default))
+            .ReturnsAsync(Result<UserResponse>.Conflict("Email already in use"));
+
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/v1/users/{userId}", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
+
+    [Fact]
+    public async Task Update_Returns400_WhenRequestIsInvalid()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var request = new UpdateUserRequest("", "invalid-email"); // Invalid request
+        _userServiceMock.Setup(s => s.UpdateAsync(userId, request, default))
+            .ReturnsAsync(Result<UserResponse>.Validation("Invalid request"));
+
+        // Act
+        var response = await _client.PutAsJsonAsync($"/api/v1/users/{userId}", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }
