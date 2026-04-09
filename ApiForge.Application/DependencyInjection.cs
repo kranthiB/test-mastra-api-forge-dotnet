@@ -3,6 +3,8 @@ using ApiForge.Application.Products.Services;
 using ApiForge.Application.Users.Interfaces;
 using ApiForge.Application.Users.Services;
 using ApiForge.Application.Products.Validators;
+using ApiForge.Application.Groups.Interfaces;
+using ApiForge.Application.Groups.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +24,7 @@ public static class DependencyInjection
         // Services
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IGroupService, GroupService>();
 
         return services;
     }
